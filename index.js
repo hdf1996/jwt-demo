@@ -23,7 +23,7 @@ app.engine('html', require('ejs').renderFile);
 
 app.get('/', function (req, res) {
   // Tengan en cuenta que esta ruta empieza en la carpeta views
-  // Osea, esto es equivalente a rendererar views/index.html
+  // Osea, esto es equivalente a renderear views/index.html
   // cuando se visita http://localhost:3000/
   res.render('index.html')
 })
