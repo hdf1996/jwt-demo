@@ -1,0 +1,5 @@
+# JWT-Workshop
+- Para correr el proyecto:
+  - npm install
+  - npm start
+- Charla: https://jwt-talk.now.sh
