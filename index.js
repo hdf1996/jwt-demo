@@ -4,6 +4,7 @@ const port = 3000;
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const shortid = require('shortid')
+
 // Con esto preparamos la base de datos
 const low = require('lowdb')
 const FileSync = require('lowdb/adapters/FileSync')
@@ -23,7 +24,7 @@ app.engine('html', require('ejs').renderFile);
 app.get('/', function (req, res) {
   // Tengan en cuenta que esta ruta empieza en la carpeta views
   // Osea, esto es equivalente a rendererar views/index.html
-  // cuando se visita http:7/localhost:3000/
+  // cuando se visita http://localhost:3000/
   res.render('index.html')
 })
 
@@ -37,15 +38,18 @@ app.get('/registro', function (req, res) {
   res.render('registro.html')
 })
 
-// Y esta ruta maneja lo que se envia desde el form
+// Y esta ruta maneja lo que se envia desde el form de registro
 app.post('/registro', function (req, res) {
   // Esta linea guarda el usuario en nuestra base de datos
   db.get('users')
     .push({
-      id: shortid.generate(),
+      id: shortid.generate(), // Nos genera un id unico para ese usuario
       email: req.body.email,
       // Aca estamos guardando la clave sin encriptar, se animan a encriptarla?
       // ESTO NO SE TIENE QUE HACER EN LA VIDA REAL, MUERE UN GATITO CADA VEZ QUE SE GUARDAN CLAVES SIN ENCRIPTAR
+      // Podes probar
+      // const bcrypt = require('bcrypt');
+      // const hash = bcrypt.hashSync('la password', 10);
       password: req.body.password,
       name: req.body.name
     }).write()
@@ -58,6 +62,8 @@ app.post('/registro', function (req, res) {
 app.post('/ingresar', function (req, res) {
   const user = db.get('users').find({
     email: req.body.email,
+    // Si hubieramos encriptado la clave,
+    // No habria que usar la password aca, solo el email (mas adelante lo explico)
     password: req.body.password
   }).value()
   if(typeof(user) === 'undefined') {
@@ -77,6 +83,16 @@ app.post('/ingresar', function (req, res) {
     //   userId: user.id
     // }
     // Podes consultar la docu de JWT en https://github.com/auth0/node-jsonwebtoken
+
+    // NOTA: Tene en cuenta que si seguiste los pasos para encriptar la password
+    // En este punto no estas seguro si la clave es correcta, solo sabes que existe un usuario con ese email
+    // Para validar la password tendras que hacer esto:
+    /*
+      bcrypt.compare(req.body.password, user.password, function(_err, valid) {
+        // Si valid === true, entonces la password es correcta
+        // Caso contrario, esta equivocado y le tenemos que dar un chancletazo http://bit.ly/2ym5w5L
+      });
+    */
   }
 })
 
